@@ -1,0 +1,47 @@
+services:
+  db:
+    build:
+      context: .
+      dockerfile: infra/db/Dockerfile
+    platform: ${CONTAINER_PLATFORM}
+    env_file: .env
+    environment:
+      ORACLE_CHARACTERSET: AL32UTF8
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+      - ./infra/db/setup:/opt/oracle/scripts/startup:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "echo 'SELECT 1 FROM dual;' | sqlplus -s -L system/$$ORACLE_PWD@//localhost:1521/FREEPDB1 | grep -q '1'"
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 120s
+    mem_limit: 2500m
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: infra/app/Dockerfile
+    platform: ${CONTAINER_PLATFORM}
+    env_file: .env
+    environment:
+      ORACLE_DSN: db:1521/FREEPDB1
+      CODEX_HOME: /tmp/codex-home
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+      - "5173:5173"
+    volumes:
+      - .:/workspace
+      - frontend-node-modules:/workspace/frontend/node_modules
+    mem_limit: 1250m
+    restart: unless-stopped
+
+volumes:
+  oracle-data:
+  frontend-node-modules:

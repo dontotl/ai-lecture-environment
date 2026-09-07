@@ -1,0 +1,5 @@
+[features]
+js_repl = false
+
+[projects."/workspace"]
+trust_level = "trusted"

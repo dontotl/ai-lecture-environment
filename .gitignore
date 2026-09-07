@@ -1,0 +1,15 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+frontend/node_modules/
+.npm-cache/
+infra/codex-profile/auth.json
+.codex/
+.pytest_cache/
+supervisord.log
+supervisord.pid
+.DS_Store
+infra/codex-profile/skills/*
+!infra/codex-profile/skills/.gitkeep
+docs/codex-cli-extensions-inventory.md
