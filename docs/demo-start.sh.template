@@ -1,0 +1,27 @@
+#!/bin/sh
+set -eu
+
+# Replace these two values when creating a demo from a lecture MD.
+DEMO_SLUG=replace-with-slug
+API_START_COMMAND='python3.9 -m uvicorn backend.main:app --host 127.0.0.1 --port'
+WEB_START_COMMAND='npm run dev -- --host 127.0.0.1 --port'
+
+. /usr/local/lib/demo-runtime.sh
+demo_prepare "$DEMO_SLUG"
+demo_dir=$(demo_root "$DEMO_SLUG")
+
+if [ "${1:-}" = '--restore' ] && [ -f "$demo_dir/.runtime.env" ]; then
+  . "$demo_dir/.runtime.env"
+else
+  API_PORT=$(demo_allocate_port 9000 9499)
+  WEB_PORT=$(demo_allocate_port 3000 3499)
+  demo_write_runtime_env "$DEMO_SLUG" "$API_PORT" "$WEB_PORT"
+fi
+
+mkdir -p "$LABS_ROOT/runtime/logs/$DEMO_SLUG"
+sh -c "$API_START_COMMAND $API_PORT" > "$LABS_ROOT/runtime/logs/$DEMO_SLUG/api.log" 2>&1 &
+demo_write_pid "$DEMO_SLUG" api "$!"
+sh -c "$WEB_START_COMMAND $WEB_PORT" > "$LABS_ROOT/runtime/logs/$DEMO_SLUG/web.log" 2>&1 &
+demo_write_pid "$DEMO_SLUG" web "$!"
+demo_register_route "$DEMO_SLUG" "$API_PORT" "$WEB_PORT"
+demo_enable "$DEMO_SLUG"

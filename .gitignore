@@ -9,6 +9,7 @@ infra/codex-profile/auth.json
 .pytest_cache/
 supervisord.log
 supervisord.pid
+runtime-data/
 .DS_Store
 infra/codex-profile/skills/*
 !infra/codex-profile/skills/.gitkeep

@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Codex 주도 동적 데모 런타임",
+    "quality_profile": "showcase",
+    "views": [
+      { "id": "authoring", "label": "Codex 구현 흐름", "focus": ["instructor", "compose", "app", "codex", "labs", "demos"], "note": "강의 MD에서 독립 데모 Git 저장소까지의 영속 구현 경로" },
+      { "id": "request", "label": "브라우저 요청 흐름", "focus": ["instructor", "nginx", "sample", "demos"], "note": "단일 8080 포트가 샘플과 동적 데모를 분리해 라우팅" },
+      { "id": "data", "label": "인증과 데이터", "focus": ["host_auth", "codex", "oracle", "oracle_volume"], "note": "개인 Codex 인증과 Oracle named volume의 영속 경계" }
+    ]
+  },
+  "components": [
+    { "id": "instructor", "type": "external", "label": "강사·수강생", "sublabel": "브라우저 · 터미널", "pos": [36, 300], "size": [140, 64] },
+    { "id": "host_auth", "type": "security", "label": "호스트 인증", "sublabel": "~/.codex/auth.json · RW", "pos": [36, 106], "size": [155, 64] },
+    { "id": "compose", "type": "cloud", "label": "Docker Compose", "sublabel": "app + db · :8080", "pos": [36, 520], "size": [150, 64] },
+    { "id": "app", "type": "backend", "label": "app 컨테이너", "sublabel": "Oracle Linux · Supervisor", "pos": [280, 520], "size": [155, 64] },
+    { "id": "codex", "type": "security", "label": "Codex CLI", "sublabel": "CODEX_HOME=/tmp/codex-home", "pos": [470, 106], "size": [170, 64] },
+    { "id": "labs", "type": "cloud", "label": "LABS_DIR → /labs", "sublabel": "호스트 bind mount · runtime-data", "pos": [680, 106], "size": [185, 64] },
+    { "id": "nginx", "type": "backend", "label": "Nginx", "sublabel": "공용 HTTP 진입점 :8080", "pos": [280, 300], "size": [155, 64] },
+    { "id": "sample", "type": "frontend", "label": "샘플 FastAPI + Vite", "sublabel": "/ · /api/health", "pos": [540, 250], "size": [170, 64] },
+    { "id": "demos", "type": "frontend", "label": "독립 데모 프로세스", "sublabel": "/<slug>/ · loopback ports", "pos": [800, 350], "size": [175, 64] },
+    { "id": "oracle", "type": "database", "label": "Oracle Free", "sublabel": "데모별 사용자·스키마", "pos": [540, 520], "size": [165, 64] },
+    { "id": "oracle_volume", "type": "database", "label": "oracle-data", "sublabel": "Docker named volume", "pos": [800, 520], "size": [150, 64] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Docker Desktop", "wraps": ["app", "codex", "nginx", "sample", "demos", "oracle"] },
+    { "kind": "security-group", "label": "호스트 영속 상태", "wraps": ["host_auth", "labs", "oracle_volume"] }
+  ],
+  "connections": [
+    { "id": "compose-starts", "from": "instructor", "to": "compose", "label": "docker compose up", "variant": "emphasis", "fromSide": "bottom", "toSide": "top", "labelDx": -42 },
+    { "id": "compose-app", "from": "compose", "to": "app", "label": "시작·재생성" },
+    { "id": "auth-mount", "from": "host_auth", "to": "codex", "label": "auth.json mount", "variant": "security" },
+    { "id": "codex-materials", "from": "codex", "to": "labs", "label": "clone · read MD · write", "variant": "security", "labelDy": -34 },
+    { "id": "app-nginx", "from": "app", "to": "nginx", "label": "Supervisor", "variant": "emphasis" },
+    { "id": "browser-8080", "from": "instructor", "to": "nginx", "label": "HTTP :8080", "variant": "emphasis", "labelDy": -32 },
+    { "id": "sample-route", "from": "nginx", "to": "sample", "label": "/ · /api/" },
+    { "id": "demo-route", "from": "nginx", "to": "demos", "label": "/<slug>/ · /api/" },
+    { "id": "demo-source", "from": "labs", "to": "demos", "label": "Git source · start/stop", "variant": "dashed", "fromSide": "bottom", "toSide": "top", "via": [[772.5, 240], [887.5, 240]], "labelDx": 42 },
+    { "id": "demo-db", "from": "demos", "to": "oracle", "label": "전용 Oracle 계정", "variant": "security" },
+    { "id": "oracle-storage", "from": "oracle", "to": "oracle_volume", "label": "영속 데이터", "labelDy": 34 }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "영속 경계", "items": ["/labs는 강의 MD, 데모 Git, 로그, PID, Nginx fragment를 보존", "oracle-data는 성능을 위해 named volume으로 유지"] },
+    { "dot": "emerald", "title": "라우팅", "items": ["외부 포트는 8080 하나", "데모는 컨테이너 내부 loopback 포트만 사용"] },
+    { "dot": "rose", "title": "보안", "items": ["Codex auth.json은 이미지·Git에 포함하지 않음", "데모별 Oracle 자격 증명은 Git 제외 .env에만 저장"] }
+  ]
+}

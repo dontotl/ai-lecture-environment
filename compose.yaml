@@ -34,11 +34,12 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "8000:8000"
-      - "5173:5173"
+      - "8080:8080"
     volumes:
       - .:/workspace
       - frontend-node-modules:/workspace/frontend/node_modules
+      - ${HOME}/.codex/auth.json:/tmp/codex-home/auth.json
+      - ${LABS_DIR:-./runtime-data}:/labs
     mem_limit: 1250m
     restart: unless-stopped
 

@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+
+DEMO_SLUG=replace-with-slug
+. /usr/local/lib/demo-runtime.sh
+
+demo_stop_pid "$DEMO_SLUG" web
+demo_stop_pid "$DEMO_SLUG" api
+demo_disable "$DEMO_SLUG"

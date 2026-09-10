@@ -10,7 +10,25 @@ docker compose --env-file env/macos-arm64.env up --build -d
 ./scripts/verify-compose.sh env/macos-arm64.env
 ```
 
-Windows x64에서는 `env/windows-amd64.env`를 사용한다. API는 `http://localhost:8000/api/health`, 화면은 `http://localhost:5173`에서 확인한다.
+Windows x64에서는 `env/windows-amd64.env`를 사용한다. API는 `http://localhost:8080/api/health`, 화면은 `http://localhost:8080`에서 확인한다.
+
+동적 데모와 강의 MD는 `runtime-data/`에 영속되며, 데모 URL과 start/stop 계약은 [동적 데모 런타임 계약](docs/demo-runtime-contract.md)을 따른다.
+
+## Codex CLI
+
+app 컨테이너에서 Codex를 실행하려면 다음 래퍼를 사용한다. 첫 로그인은 `login` 인자를 붙인다.
+
+```sh
+./scripts/codex.sh login
+./scripts/codex.sh
+```
+
+Windows x64에서는 환경 파일을 지정한다.
+
+```sh
+./scripts/codex.sh --env-file env/windows-amd64.env login
+./scripts/codex.sh --env-file env/windows-amd64.env
+```
 
 ## 문서
 
