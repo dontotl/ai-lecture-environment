@@ -8,14 +8,19 @@
 source해 API와 웹 프로세스를 `127.0.0.1`의 서로 다른 포트에 기동하고 `demo_register_route`,
 `demo_enable`을 호출한다. stop은 `demo_stop_pid` 후 `demo_disable`을 호출한다.
 
+FastAPI가 정적 HTML도 제공하는 단일 프로세스 데모는 API·웹 포트를 같은 값으로
+저장하고 `demo_register_route`의 두 포트 인자에도 같은 값을 전달한다. 이 경우
+PID는 한 개만 관리한다. [Simple RAG 런타임 가이드](../courses/01-simple-rag/guides/demo-runtime.md)를 따른다.
+
 외부 주소는 다음으로 고정한다.
 
 - 웹: `http://localhost:8080/<slug>/`
 - API: `http://localhost:8080/<slug>/api/...`
 
-Vite는 `base: '/<slug>/'`를 사용하고, 브라우저 API 요청은 절대 호스트가 아닌
+Vite를 사용하는 데모는 `base: '/<slug>/'`를 사용하고, 브라우저 API 요청은 절대 호스트가 아닌
 `/<slug>/api/...` 상대 경로를 사용한다. start/stop 예시는
 `docs/demo-start.sh.template`, `docs/demo-stop.sh.template`에 있다.
 
-데모별 Oracle 사용자는 해당 스키마 객체 권한만 갖게 한다. 비밀번호는 Git에 넣지 않는
+Oracle을 사용하는 데모의 사용자는 해당 스키마 객체 권한만 갖게 한다. 로컬 파일만 쓰는
+Simple RAG는 별도 Oracle 사용자를 만들지 않는다. 비밀번호는 Git에 넣지 않는
 데모 `.env`에만 저장한다. stop은 소스, Git 이력, `.env`, Oracle 데이터를 삭제하지 않는다.
